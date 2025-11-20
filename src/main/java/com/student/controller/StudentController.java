@@ -84,13 +84,8 @@ public class StudentController extends HttpServlet {
             request.setAttribute("students", students);
             request.setAttribute("keyword", keyword);
 
-            if (students.size() > 0) {
-                request.setAttribute("message", "Found " + students.size() + " students");
-            } else {
-                request.setAttribute("message", "No student found");
-            }
-
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/views/student-list.jsp");
+            RequestDispatcher dispatcher = request
+                    .getRequestDispatcher("/views/student-list.jsp?message=Search results for: " + keyword);
             dispatcher.forward(request, response);
         }
     }
