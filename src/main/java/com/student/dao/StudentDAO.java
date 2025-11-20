@@ -26,6 +26,59 @@ public class StudentDAO {
         }
     }
 
+    // Get student sorted
+    public List<Student> getStudentsFiltered(String major, String sortBy, String order) {
+        List<Student> students = new ArrayList<>();
+        if (sortBy != null) {
+            String sql = "select * from students order by ? ?";
+            System.err.println(sql);
+            try (Connection conn = getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, sortBy);
+                pstmt.setString(2, order);
+                System.err.println(pstmt);
+
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Student student = new Student();
+                    student.setId(rs.getInt("id"));
+                    student.setStudentCode(rs.getString("student_code"));
+                    student.setFullName(rs.getString("full_name"));
+                    student.setEmail(rs.getString("email"));
+                    student.setMajor(rs.getString("major"));
+                    student.setCreatedAt(rs.getTimestamp("created_at"));
+                    students.add(student);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (major != null) {
+            String sql = "select * from students where major = ? ORDER BY id DESC";
+
+            try (Connection conn = getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, major);
+                ResultSet rs = pstmt.executeQuery();
+
+                while (rs.next()) {
+                    Student student = new Student();
+                    student.setId(rs.getInt("id"));
+                    student.setStudentCode(rs.getString("student_code"));
+                    student.setFullName(rs.getString("full_name"));
+                    student.setEmail(rs.getString("email"));
+                    student.setMajor(rs.getString("major"));
+                    student.setCreatedAt(rs.getTimestamp("created_at"));
+                    students.add(student);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return students;
+    }
+
     // Search students
     public List<Student> searchStudents(String keyword) {
         String sql = "SELECT * FROM students WHERE student_code LIKE ? OR full_name LIKE ? OR email LIKE ? ORDER BY id DESC";
@@ -37,7 +90,6 @@ public class StudentDAO {
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
             pstmt.setString(3, searchPattern);
-            System.out.println(pstmt);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {

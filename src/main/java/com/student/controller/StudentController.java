@@ -140,8 +140,41 @@ public class StudentController extends HttpServlet {
     // List all students
     private void listStudents(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String major = request.getParameter("major");
+        String sortBy = request.getParameter("sortBy");
+        String order = request.getParameter("order");
+        List<Student> students = null;
 
-        List<Student> students = studentDAO.getAllStudents();
+        // if ("desc".equalsIgnoreCase(order)) {
+        // order = "DESC";
+        // } else {
+        // order = "ASC";
+        // }
+
+        if (sortBy != null) {
+            String[] validColumns = { "id", "student_code", "full_name", "email", "major" };
+            for (int i = 0; i < validColumns.length; i++) {
+                if (validColumns[i].equals(sortBy)) {
+                    students = studentDAO.getStudentsFiltered(null, sortBy, order);
+                    break;
+                }
+            }
+            if (students == null) {
+                sortBy = "id";
+                students = studentDAO.getStudentsFiltered(null, sortBy, order);
+            }
+
+            request.setAttribute("sortBy", sortBy);
+            request.setAttribute("order", order);
+
+        } else if (major != null) {
+            students = studentDAO.getStudentsFiltered(major, null, null);
+            request.setAttribute("major", major);
+
+        } else {
+            students = studentDAO.getAllStudents();
+        }
+
         request.setAttribute("students", students);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/views/student-list.jsp");

@@ -122,6 +122,12 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
         text-transform: uppercase;
         font-size: 13px;
         letter-spacing: 0.5px;
+        
+      }
+
+      th a {
+        text-decoration: none;
+        color: inherit;
       }
 
       tbody tr {
@@ -195,14 +201,72 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
       <!-- Student Table -->
       <c:choose>
         <c:when test="${not empty students}">
+            <div class="filter-box" style="margin-top: 10px">
+                <form action="student" method="get">
+                    <input type="hidden" name="action" value="filter">
+                    <label>Filter by Major:</label>
+                    <select name="major" style="padding: 10px; font-size: 14px">
+                        <option value="">All Majors</option>
+                        <option value="Computer Science" ${major == 'Computer Science' ? 'selected' : ''}>Computer Science</option>
+                        <option value="Information Technology" ${major == 'Information Technology' ? 'selected' : ''}>Information Technology</option>
+                        <option value="Software Engineering" ${major == 'Software Engineering' ? 'selected' : ''}>Software Engineering</option>
+                        <option value="Business Administration" ${major == 'Business Administration' ? 'selected' : ''}>Business Administration</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    <c:if test="${not empty major}">
+                        <a href="student?action=list" class="btn btn-primary">Clear Filter</a>
+                    </c:if>
+                </form>
+            </div>
+            <h1>${order} ${sortBy}</h1>
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Student Code</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Major</th>
+                <th>
+                  <a
+                    href="student?action=sort&sortBy=id&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    >ID</a
+                  >
+                  <c:if test="${sortBy == 'id'}">
+                    ${order == 'asc' ? '▲' : '▼'}
+                  </c:if>
+                </th>
+                <th>
+                  <a
+                    href="student?action=sort&sortBy=student_code&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    >Code</a
+                  >
+                  <c:if test="${sortBy == 'student_code'}">
+                    ${order == 'asc' ? '▲' : '▼'}
+                  </c:if>
+                </th>
+                <th>
+                  <a
+                    href="student?action=sort&sortBy=full_name&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    >Name</a
+                  >
+                  <c:if test="${sortBy == 'full_name'}">
+                    ${order == 'asc' ? '▲' : '▼'}
+                  </c:if>
+                </th>
+                <th>
+                  <a
+                    href="student?action=sort&sortBy=email&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    >Email</a
+                  >
+                  <c:if test="${sortBy == 'email'}">
+                    ${order == 'asc' ? '▲' : '▼'}
+                  </c:if>
+                </th>
+                <th>
+                  <a
+                    href="student?action=sort&sortBy=major&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    >Major</a
+                  >
+                  <c:if test="${sortBy == 'major'}">
+                    ${order == 'asc' ? '▲' : '▼'}
+                  </c:if>
+                </th>
                 <th>Actions</th>
               </tr>
             </thead>
