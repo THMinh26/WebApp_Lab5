@@ -143,35 +143,52 @@ public class StudentController extends HttpServlet {
         String major = request.getParameter("major");
         String sortBy = request.getParameter("sortBy");
         String order = request.getParameter("order");
+        String pageParam = request.getParameter("page");
         List<Student> students = null;
-        System.err.println(major + " " + sortBy + " " + order);
+
+        // Page variables
+        int currentPage = pageParam != null ? Integer.parseInt(pageParam) : 1;
+        int recordsPerPage = 10;
+        int offset = (currentPage - 1) * recordsPerPage;
+        int totalRecords = 0;
+
+        // Sort order check
         if ("desc".equalsIgnoreCase(order)) {
             order = "desc";
         } else {
             order = "asc";
         }
-        System.err.println(major + " " + sortBy + " " + order);
 
         if (sortBy != null) {
             String[] validColumns = { "id", "student_code", "full_name", "email", "major" };
             for (int i = 0; i < validColumns.length; i++) {
                 if (validColumns[i].equals(sortBy)) {
-                    students = studentDAO.getStudentsFiltered(major, sortBy, order);
+                    students = studentDAO.getStudentsFiltered(major, sortBy, order, recordsPerPage, offset);
+                    totalRecords = studentDAO.getTotalStudents(major, sortBy, order);
                     break;
                 }
             }
             if (students == null) {
                 sortBy = "id";
-                students = studentDAO.getStudentsFiltered(major, sortBy, order);
+                students = studentDAO.getStudentsFiltered(major, sortBy, order, recordsPerPage, offset);
+                totalRecords = studentDAO.getTotalStudents(major, sortBy, order);
+
             }
 
         } else if (major != null && !major.isBlank()) {
-            students = studentDAO.getStudentsFiltered(major, sortBy, order);
+            students = studentDAO.getStudentsFiltered(major, sortBy, order, recordsPerPage, offset);
+            totalRecords = studentDAO.getTotalStudents(major, sortBy, order);
 
         } else {
-            students = studentDAO.getAllStudents();
+            students = studentDAO.getAllStudents(recordsPerPage, offset);
+            totalRecords = studentDAO.getTotalStudents();
         }
+        System.err.println(totalRecords);
 
+        int totalPages = (int) Math.ceil((double) totalRecords / recordsPerPage);
+
+        request.setAttribute("currentPage", currentPage);
+        request.setAttribute("totalPages", totalPages);
         request.setAttribute("sortBy", sortBy);
         request.setAttribute("order", order);
         request.setAttribute("major", major);

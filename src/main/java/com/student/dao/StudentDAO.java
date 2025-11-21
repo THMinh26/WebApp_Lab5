@@ -9,6 +9,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 public class StudentDAO {
 
     // Database configuration
@@ -26,15 +28,33 @@ public class StudentDAO {
         }
     }
 
-    // Get student sorted
-    public List<Student> getStudentsFiltered(String major, String sortBy, String order) {
-        List<Student> students = new ArrayList<>();
+    // Get total students
+    public int getTotalStudents() {
+        int result = 0;
+        String sql = "select count(*) from students";
+
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                result = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    // Get total students
+    public int getTotalStudents(String major, String sortBy, String order) {
+        int result = 0;
         if (sortBy != null) {
             String sql = null;
             if (major == null || major.isBlank()) {
-                sql = "select * from students order by " + sortBy + " " + order;
+                sql = "select count(*) from students order by " + sortBy + " " + order;
             } else {
-                sql = "select * from students where major = ? order by " + sortBy + " " + order;
+                sql = "select count(*) from students where major = ? order by " + sortBy + " " + order;
             }
 
             try (Connection conn = getConnection();
@@ -42,8 +62,83 @@ public class StudentDAO {
                 if (major != null && !major.isBlank()) {
                     pstmt.setString(1, major);
                 }
+                System.err.println("PSTMT: " + pstmt);
+
                 ResultSet rs = pstmt.executeQuery();
-                System.err.println("In sort");
+
+                if (rs.next()) {
+                    result = rs.getInt(1);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else if (major != null) {
+            String sql = "select count(*) from students where major = ? ORDER BY id DESC";
+
+            try (Connection conn = getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, major);
+                ResultSet rs = pstmt.executeQuery();
+                if (rs.next()) {
+                    result = rs.getInt(1);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    // Get paginated results
+    public List<Student> getStudentsPaginated(int offset, int limit) {
+        String sql = "SELECT * FROM students ORDER BY id DESC LIMIT ? OFFSET ?";
+        List<Student> students = new ArrayList<>();
+        try (Connection conn = getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            pstmt.setInt(2, offset);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Student student = new Student();
+                student.setId(rs.getInt("id"));
+                student.setStudentCode(rs.getString("student_code"));
+                student.setFullName(rs.getString("full_name"));
+                student.setEmail(rs.getString("email"));
+                student.setMajor(rs.getString("major"));
+                student.setCreatedAt(rs.getTimestamp("created_at"));
+                students.add(student);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return students;
+    }
+
+    // Get student sorted
+    public List<Student> getStudentsFiltered(String major, String sortBy, String order, int limit,
+            int offset) {
+        List<Student> students = new ArrayList<>();
+        // Index for pstmt parameters
+        int paramIndex = 0;
+
+        if (sortBy != null) {
+            String sql = null;
+            if (major == null || major.isBlank()) {
+                sql = "select * from students order by " + sortBy + " " + order + " limit ? offset ?";
+            } else {
+                sql = "select * from students where major = ? order by " + sortBy + " " + order + " limit ? offset ?";
+            }
+            try (Connection conn = getConnection();
+                    PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                if (major != null && !major.isBlank()) {
+                    pstmt.setString(++paramIndex, major);
+                }
+                pstmt.setInt(++paramIndex, limit);
+                pstmt.setInt(++paramIndex, offset);
+                System.err.println("PSTMT: " + pstmt);
+                ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
                     Student student = new Student();
                     student.setId(rs.getInt("id"));
@@ -58,13 +153,16 @@ public class StudentDAO {
                 e.printStackTrace();
             }
         } else if (major != null) {
-            String sql = "select * from students where major = ? ORDER BY id DESC";
+            String sql = "select * from students where major = ? ORDER BY id DESC limit ? offset ?";
 
             try (Connection conn = getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, major);
+                pstmt.setString(++paramIndex, major);
+                pstmt.setInt(++paramIndex, limit);
+                pstmt.setInt(++paramIndex, offset);
+                System.err.println("PSTMT: " + pstmt);
+
                 ResultSet rs = pstmt.executeQuery();
-                System.err.println("In major");
 
                 while (rs.next()) {
                     Student student = new Student();
@@ -113,13 +211,15 @@ public class StudentDAO {
     }
 
     // Get all students
-    public List<Student> getAllStudents() {
+    public List<Student> getAllStudents(int limit, int offset) {
         List<Student> students = new ArrayList<>();
-        String sql = "SELECT * FROM students ORDER BY id DESC";
+        String sql = "SELECT * FROM students ORDER BY id DESC limit ? offset ?";
 
         try (Connection conn = getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, limit);
+            pstmt.setInt(2, offset);
+            ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
                 Student student = new Student();

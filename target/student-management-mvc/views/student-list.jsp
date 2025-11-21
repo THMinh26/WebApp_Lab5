@@ -218,6 +218,33 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                     </c:if>
                 </form>
             </div>
+          
+            <div class="pagination">
+              <!-- Previous button -->
+              <c:if test="${currentPage > 1}">
+                  <a href="student?action=list&page=${currentPage - 1}">« Previous</a>
+              </c:if>
+              
+              <!-- Page numbers -->
+              <c:forEach begin="1" end="${totalPages}" var="i">
+                  <c:choose>
+                      <c:when test="${i == currentPage}">
+                          <strong>${i}</strong>
+                      </c:when>
+                      <c:otherwise>
+                          <a href="student?action=list&page=${i}">${i}</a>
+                      </c:otherwise>
+                  </c:choose>
+              </c:forEach>
+              
+              <!-- Next button -->
+              <c:if test="${currentPage < totalPages}">
+                  <a href="student?action=list&page=${currentPage + 1}">Next »</a>
+              </c:if>
+          </div>
+          
+          <p>Showing page ${currentPage} of ${totalPages}</p>           
+            
           <table>
             <thead>
               <tr>
