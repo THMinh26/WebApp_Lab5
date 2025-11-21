@@ -30,16 +30,20 @@ public class StudentDAO {
     public List<Student> getStudentsFiltered(String major, String sortBy, String order) {
         List<Student> students = new ArrayList<>();
         if (sortBy != null) {
-            String sql = "select * from students order by ? ?";
-            System.err.println(sql);
+            String sql = null;
+            if (major == null || major.isBlank()) {
+                sql = "select * from students order by " + sortBy + " " + order;
+            } else {
+                sql = "select * from students where major = ? order by " + sortBy + " " + order;
+            }
+
             try (Connection conn = getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, sortBy);
-                pstmt.setString(2, order);
-                System.err.println(pstmt);
-
+                if (major != null && !major.isBlank()) {
+                    pstmt.setString(1, major);
+                }
                 ResultSet rs = pstmt.executeQuery();
-
+                System.err.println("In sort");
                 while (rs.next()) {
                     Student student = new Student();
                     student.setId(rs.getInt("id"));
@@ -53,14 +57,14 @@ public class StudentDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
-        if (major != null) {
+        } else if (major != null) {
             String sql = "select * from students where major = ? ORDER BY id DESC";
 
             try (Connection conn = getConnection();
                     PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, major);
                 ResultSet rs = pstmt.executeQuery();
+                System.err.println("In major");
 
                 while (rs.next()) {
                     Student student = new Student();

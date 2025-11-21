@@ -218,13 +218,12 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                     </c:if>
                 </form>
             </div>
-            <h1>${order} ${sortBy}</h1>
           <table>
             <thead>
               <tr>
                 <th>
                   <a
-                    href="student?action=sort&sortBy=id&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    href="student?action=sort&sortBy=id&order=${order != 'asc' ? 'asc' : 'desc'}&major=${major}"
                     >ID</a
                   >
                   <c:if test="${sortBy == 'id'}">
@@ -233,7 +232,7 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                 </th>
                 <th>
                   <a
-                    href="student?action=sort&sortBy=student_code&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    href="student?action=sort&sortBy=student_code&order=${order != 'asc' ? 'asc' : 'desc'}&major=${major}"
                     >Code</a
                   >
                   <c:if test="${sortBy == 'student_code'}">
@@ -242,7 +241,7 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                 </th>
                 <th>
                   <a
-                    href="student?action=sort&sortBy=full_name&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    href="student?action=sort&sortBy=full_name&order=${order != 'asc' ? 'asc' : 'desc'}&major=${major}"
                     >Name</a
                   >
                   <c:if test="${sortBy == 'full_name'}">
@@ -251,7 +250,7 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                 </th>
                 <th>
                   <a
-                    href="student?action=sort&sortBy=email&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    href="student?action=sort&sortBy=email&order=${order != 'asc' ? 'asc' : 'desc'}&major=${major}"
                     >Email</a
                   >
                   <c:if test="${sortBy == 'email'}">
@@ -260,7 +259,7 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                 </th>
                 <th>
                   <a
-                    href="student?action=sort&sortBy=major&order=${order != 'asc' ? 'asc' : 'desc'}"
+                    href="student?action=sort&sortBy=major&order=${order != 'asc' ? 'asc' : 'desc'}&major=${major}"
                     >Major</a
                   >
                   <c:if test="${sortBy == 'major'}">
