@@ -222,7 +222,7 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
             <div class="pagination">
               <!-- Previous button -->
               <c:if test="${currentPage > 1}">
-                  <a href="student?action=list&page=${currentPage - 1}">« Previous</a>
+                  <a href="student?action=list&page=${currentPage - 1}&major=${major}">« Previous</a>
               </c:if>
               
               <!-- Page numbers -->
@@ -232,14 +232,14 @@ pageEncoding="UTF-8"%> <%@ taglib uri="jakarta.tags.core" prefix="c" %>
                           <strong>${i}</strong>
                       </c:when>
                       <c:otherwise>
-                          <a href="student?action=list&page=${i}">${i}</a>
+                          <a href="student?action=list&page=${i}&major=${major}">${i}</a>
                       </c:otherwise>
                   </c:choose>
               </c:forEach>
               
               <!-- Next button -->
               <c:if test="${currentPage < totalPages}">
-                  <a href="student?action=list&page=${currentPage + 1}">Next »</a>
+                  <a href="student?action=list&page=${currentPage + 1}&major=${major}">Next »</a>
               </c:if>
           </div>
           
